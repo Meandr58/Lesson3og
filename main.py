@@ -12,6 +12,7 @@ icon = pygame.image.load("image/tir.jpg")
 pygame.display.set_icon(icon)
 
 target_image = pygame.image.load("image/target.png")
+hit_image = pygame.image.load("image/target_hit.png")
 target_width = 50
 target_height = 50
 
@@ -19,6 +20,10 @@ target_x = random.randint(0, SCREEN_WIDTH - target_width)
 target_y = random.randint(0, SCREEN_HEIGHT - target_height)
 
 color = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+
+# Создаем пользовательское событие
+HIT_EVENT = pygame.USEREVENT + 1
+hit_timer_active = False
 
 running = True
 while running:
@@ -29,10 +34,22 @@ while running:
         if event.type == pygame.MOUSEBUTTONDOWN:
             mouse_x, mouse_y = pygame.mouse.get_pos()
             if target_x < mouse_x < target_x + target_width and target_y < mouse_y < target_y + target_height:
-                target_x = random.randint(0, SCREEN_WIDTH - target_width)
-                target_y = random.randint(0, SCREEN_HEIGHT - target_height)
+                # Ставим hit_image и запускаем таймер на 1000 мс (1 секунда)
+                hit_timer_active = True
+                pygame.time.set_timer(HIT_EVENT, 500)
 
-    screen.blit(target_image, (target_x, target_y))
+        if event.type == HIT_EVENT:
+            # Возвращаем target_image и останавливаем таймер
+            target_x = random.randint(0, SCREEN_WIDTH - target_width)
+            target_y = random.randint(0, SCREEN_HEIGHT - target_height)
+            hit_timer_active = False
+            pygame.time.set_timer(HIT_EVENT, 0)
+
+    if hit_timer_active:
+        screen.blit(hit_image, (target_x, target_y))
+    else:
+        screen.blit(target_image, (target_x, target_y))
+
     pygame.display.update()
 
 pygame.quit()
